@@ -3,6 +3,11 @@ const express = require('express');
 const app = express();
 
 
+const userRoute = require('./routes/user')
+
+
+app.use(express.json());
+
 
 const data =[
     {id : 1, langage : 'js'},
