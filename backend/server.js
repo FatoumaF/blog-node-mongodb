@@ -1,7 +1,9 @@
 const port = 3002;
 const express = require('express');
 const app = express();
+const connectToDatabase= require('../backend/database');
 
+connectToDatabase();
 
 const userRoute = require('./routes/user')
 

@@ -1,17 +1,19 @@
 const express = require('express');
-const {createOne, getAll, login,updateOne} =require ('../backend/controllers/userctrl.')
+const { createOne, getAll, login, updateOne } = require('../controllers/userctrl.js');
+
+// import {createOne, getAll, login,updateOne} from '../backend/controllers/userctrl.'
 
 const router = express.Router();
 
 
 //Pour récupérer les détails d'un utlisateurs connecté
-router.get('user:id',)
+router.get('user:id', getAll)
 // Pour mettre à jour les informations d'un utlisateurs connectéé
-router.put('/user:id',)
+router.put('/user:id', updateOne)
 
 //Pour que l'utlisateur se connecte
- router.post('/login',)
+ router.post('/login', login)
  //Pour que l'utilisateur se connecte
- router.post('/register', )
+ router.post('/register',createOne )
 
-export default router
+ module.exports = router;
