@@ -131,3 +131,5 @@ dist
 # Ignorer le répertoire node_modules
 node_modules/
 
+../route.md/route.md
+

@@ -1,3 +1,4 @@
+const user = require('../models/user.js')
 const express = require('express');
 const { createOne, getAll, login, updateOne } = require('../controllers/userctrl.js');
 

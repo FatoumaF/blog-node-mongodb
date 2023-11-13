@@ -9,7 +9,7 @@ const userRoute = require('./routes/user')
 
 
 app.use(express.json());
-
+app.use(userRoute)
 
 const data =[
     {id : 1, langage : 'js'},
