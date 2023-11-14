@@ -1,8 +1,6 @@
 const userModel = require('../models/user.js');
-const mongoose = require('mongoose');
 
-
-// création d'un utlisateur dans la base de donnée
+// création d'un utilisateur dans la base de données
 const createOne = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -13,7 +11,7 @@ const createOne = async (req, res) => {
     }
 
     // Créer un nouvel utilisateur en utilisant le modèle Mongoose
-    const newUser = new User({
+    const newUser = new userModel({
       firstName,
       lastName,
       email,
@@ -32,33 +30,61 @@ const createOne = async (req, res) => {
   }
 };
 
+// connexion d'un utilisateur dans la base de données
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-//connexion d'un utlisateur dans la base de donnée
-const login = async(req, res) => {
-    try {
-        const {email , password} = req.body
-        if (!email || !password){
-            return res.json({message : "Please enter the correct informations"})
-        }
-
-        const  userExist = await  userModel.findOne({email : req.body.email})
-
-        if(!userExist){
-            return res.json({message : "enter valide champs"})
-        }
-        
-    } catch (error) {
-        
+    if (!email || !password) {
+      return res.json({ message: "Please enter the correct informations" });
     }
- 
+
+    const userExist = await userModel.findOne({ email: req.body.email });
+
+    if (!userExist) {
+      return res.json({ message: "Enter valid credentials" });
+    }
+
+    // Votre logique de connexion ici
+
+    return res.json({ message: "good connection" });
+
+  } catch (error) {
+    res.status(500).json({ error: error, message: "message" });
+  }
 };
 
-const updateOne = (req, res) => {
-  // Implémentez la logique de mise à jour ici
+const updateOne = async (req, res) => {
+  try {
+    if (req.body.id && req.body.firstName && req.body.lastName && req.body.email && req.body.password) {
+      const user = await userModel.findOne({ _id: req.body.id });
+      if (user) {
+        user.firstName = req.body.firstName;
+        user.lastName = req.body.lastName;
+        user.email = req.body.email;
+        user.password = req.body.password;
+        await user.save();
+        res.json(user);
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } else {
+      res.status(400).json({ message: "Missing parameters" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-const getAll = (req, res) => {
+const getAll =async (req, res) => {
   // Implémentez la logique pour obtenir tous les utilisateurs ici
+  try {
+    if(req.body.id){
+        await userModel.findByIdAndUpdate({})
+    }
+  } catch (error) {
+    
+  }
 };
 
 module.exports = { getAll, createOne, login, updateOne };

@@ -12,6 +12,7 @@ router.get('user:id', getAll)
 // Pour mettre à jour les informations d'un utlisateurs connectéé
 router.put('/user:id', updateOne)
 
+
 //Pour que l'utlisateur se connecte
  router.post('/login', login)
  //Pour que l'utilisateur se connecte
