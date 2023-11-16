@@ -1,15 +1,13 @@
+const article = require('../models/articles.js')
 const express = require('express');
+const{getAllarticle, getOnearticle, deleteOnearticle,createOnearticle,updateOnearticle}=require('../controllers/articlectrl.js');
+;
 const router = express.Router();
 
-router.get('/articles',(req,res) =>{ 
-})
+router.get('/articlesall', getAllarticle);
+router.get('/articles:id', getOnearticle);
+router.post('/articles', createOnearticle);
+router.put('/articles:id',updateOnearticle);
+router.delete('/artices:id', deleteOnearticle);
 
-router.get('/articles:id', (req, res)=>{
-})
-router.post('/articles', (req,res)=>{
-})
-router.put('/articles:id',(req,res)=>{
-})
-
-router.delete('/artices:id', (req,res )=>{
-})
+module.exports = router;

@@ -5,14 +5,16 @@ const connectToDatabase= require('../backend/database');
 
 connectToDatabase();
 
-const userRoute = require('./routes/user')
+const userRoute = require('./routes/user');
+const articleRoute = require('./routes/article');
 
 app.use(express.json());
-app.use(userRoute)
+app.use(userRoute);
+app.use(articleRoute);
 
 
 app.get('/', (req, res)=>{
-    res.status(200).json(data)
+    res.status(200)
 })
 app.listen(port, () => {
     console.log(`Le serveur Express est en cours d'écoute sur le port ${port}`);

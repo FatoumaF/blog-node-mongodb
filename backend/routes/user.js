@@ -8,7 +8,7 @@ const router = express.Router();
 
 
 //Pour récupérer les détails d'un utlisateurs connecté
-router.get('user:id', getAll)
+router.get('/user', getAll)
 // Pour mettre à jour les informations d'un utlisateurs connectéé
 router.put('/user:id', updateOne)
 

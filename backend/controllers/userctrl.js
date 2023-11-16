@@ -77,15 +77,17 @@ const updateOne = async (req, res) => {
 };
 
 const getAll =async (req, res) => {
+  
   // Implémentez la logique pour obtenir tous les utilisateurs ici
   try {
-    if(req.body.id){
-        await userModel.findByIdAndUpdate({})
-    }
+    const users = await userModel.find();
+    res.json(users);
   } catch (error) {
-    
+    console.error('Erreur lors de la récupération des utilisateurs :', error);
+    res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
   }
 };
+
 
 module.exports = { getAll, createOne, login, updateOne };
 
