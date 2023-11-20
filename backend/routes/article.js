@@ -5,9 +5,9 @@ const{getAllarticle, getOnearticle, deleteOnearticle,createOnearticle,updateOnea
 const router = express.Router();
 
 router.get('/articlesall', getAllarticle);
-router.get('/articles:id', getOnearticle);
+router.get('/articles/:id', getOnearticle);
 router.post('/articles', createOnearticle);
-router.put('/articles:id',updateOnearticle);
-router.delete('/artices:id', deleteOnearticle);
+router.put('/articles/:id',updateOnearticle);
+router.delete('/articles/:id', deleteOnearticle);
 
 module.exports = router;
