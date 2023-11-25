@@ -1,90 +1,130 @@
-const article = require('../models/articles.js');
 const articleModel = require('../models/articles.js');
+const multer = require('multer');
 
+// Configuration de Multer pour spécifier où enregistrer les fichiers téléchargés
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploadsimg/'); // le dossier où vous souhaitez stocker les fichiers téléchargés
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); 
+  },
+});
 
-const createOnearticle = async(req, res) =>{
-    try {
-        const {title, content, author, date}= req.body
-      const newArticle = new articleModel({
-        title,
-        content,
-        author,
-        date,
-      })
-      const saveArticle = await newArticle.save()
-
-      res.status(200).json(saveArticle)
-    } catch (error) {
-        console.error('Erreur lors de la création de l\'article :', error);
-        res.status(200).json({message : "aucun article n'a été posté"})   
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10000000, // Limite de taille maximale de fichier (10 Mo)
+  },
+  fileFilter(req, file, cb) {
+    console.log(file);
+    if (!file.originalname.match(/\.(png|jpg)$/)) {
+      console.log("uploadimage");
+      return cb(new Error('Veuillez télécharger un fichier avec une extension jpg ou png.'));
     }
-}
+    cb(null, true);
+  }
+});
 
-const getAllarticle = async(req,res) =>{
-    try {
-        const article = await articleModel.find()
-        res.json(article)
-    } catch (error) {
-        console.error('Erreur lors de la récupération des articles :', error);
-        res.status(500).json({ message: "Erreur lors de la récupération des articles" });
-        
-    }
+const createOnearticle = async (req, res) => {
+  try {
+    const { title, content, author, name, date } = req.body;
 
-}
+    const newArticle = new articleModel({
+      title,
+      content,
+      author,
+      name,
+      date,
+    });
 
-const getOnearticle = async (req, res ) =>{
-try {
-    const articleId = req.params.id
-    const oneArticle = await articleModel.findById(articleId)
-    res.json(oneArticle)
-    
-} catch (error) {
-    console.error('Erreur lors de la récupération des articles :', error);
-res.status(500).json({ message : "Erreur"})
-    
-}
-
-}
-
-const updateOnearticle= async(req, res) =>{
-
-    try {
-        const articleId= req.params.id
-    const {title, content, author, date}= req.body
-      const newArticle = ({
-        title,
-        content,
-        author,
-        date,
-      })
-    const  updateOnearticle = await article.updateOne({"_id":articleId}, newArticle)
-    res.json(newArticle)
- 
-    } catch (error) {
-        console.error('Erreur lors de la modification des articles :', error);
-res.status(500).json({ message : "Erreur"})
-
-        
-    }
-    
-}
-const deleteOnearticle = async (req, res) => {
-    try {
-      const articleId = req.params.id;
-      const deleteArticle = await article.deleteOne({ "_id": articleId });
-  
-      if (deleteArticle.deletedCount === 1) {
-        // L'article a été supprimé avec succès
-        res.status(200).json({ message: "Article supprimé avec succès" });
-      } else {
-        // Aucun article n'a été trouvé avec cet ID
-        res.status(404).json({ message: "Aucun article trouvé avec cet ID" });
+    // Utilisez le middleware Multer pour gérer le téléchargement de l'image
+    upload.single('image')(req, res, async (err) => {
+      if (err) {
+        console.error('Erreur lors du téléchargement de l\'image :', err);
+        return res.status(500).json({ message: "Erreur lors du téléchargement de l'image" });
       }
-    } catch (error) {
-      console.error('Erreur lors de la suppression des articles :', error);
-      res.status(500).json({ message: "Erreur lors de la suppression de l'article" });
+
+      // Si une image est téléchargée, ajoutez le chemin vers l'image à l'article
+      if (req.file) {
+        newArticle.imagePath = req.file.path;
+      }
+
+      // Enregistrez l'article dans la base de données
+      const savedArticle = await newArticle.save();
+      res.status(200).json(savedArticle);
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création de l\'article :', error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const getAllarticle = async (req, res) => {
+  try {
+    const articles = await articleModel.find();
+    res.json(articles);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des articles :', error);
+    res.status(500).json({ message: "Erreur lors de la récupération des articles" });
+  }
+};
+
+const getOnearticle = async (req, res) => {
+  try {
+    const articleId = req.params.id;
+    const oneArticle = await articleModel.findById(articleId);
+    res.json(oneArticle);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'article :', error);
+    res.status(500).json({ message: "Erreur lors de la récupération de l'article" });
+  }
+};
+
+const updateOnearticle = async (req, res) => {
+  try {
+    const articleId = req.params.id;
+    const { title, content, author, date } = req.body;
+
+    const updatedArticle = await articleModel.findByIdAndUpdate(
+      articleId,
+      {
+        title,
+        content,
+        author,
+        date,
+      },
+      { new: true }
+    );
+
+    res.json(updatedArticle);
+  } catch (error) {
+    console.error('Erreur lors de la modification de l\'article :', error);
+    res.status(500).json({ message: "Erreur lors de la modification de l'article" });
+  }
+};
+
+const deleteOnearticle = async (req, res) => {
+  try {
+    const articleId = req.params.id;
+    const deleteArticle = await articleModel.deleteOne({ "_id": articleId });
+
+    if (deleteArticle.deletedCount === 1) {
+      res.status(200).json({ message: "Article supprimé avec succès" });
+    } else {
+      res.status(404).json({ message: "Aucun article trouvé avec cet ID" });
     }
-  };
-  
-  
-module.exports = {createOnearticle, getAllarticle ,updateOnearticle , deleteOnearticle,getOnearticle};
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'article :', error);
+    res.status(500).json({ message: "Erreur lors de la suppression de l'article" });
+  }
+};
+
+module.exports = {
+  createOnearticle,
+  getAllarticle,
+  updateOnearticle,
+  deleteOnearticle,
+  getOnearticle,
+  uploadMiddleware: upload.single('image'), // Middleware pour le téléchargement d'une seule image
+};
