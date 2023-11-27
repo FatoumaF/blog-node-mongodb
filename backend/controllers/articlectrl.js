@@ -11,39 +11,46 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ 
+// Middleware pour le téléchargement d'une seule image
+const upload = multer({
   storage: storage,
   limits: {
     fileSize: 10000000, // Limite de taille maximale de fichier (10 Mo)
   },
   fileFilter(req, file, cb) {
-    console.log(file);
-    if (!file.originalname.match(/\.(png|jpg)$/)) {
-      console.log("uploadimage");
+    console.log('File:', file);
+    if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+      console.log("Erreur d'extension de fichier");
       return cb(new Error('Veuillez télécharger un fichier avec une extension jpg ou png.'));
     }
     cb(null, true);
   }
 });
 
+const uploadMiddleware = upload.single('image');
+
 const createOnearticle = async (req, res) => {
   try {
-    const { title, content, author, name, date } = req.body;
-
-    const newArticle = new articleModel({
-      title,
-      content,
-      author,
-      name,
-      date,
-    });
-
     // Utilisez le middleware Multer pour gérer le téléchargement de l'image
     upload.single('image')(req, res, async (err) => {
       if (err) {
         console.error('Erreur lors du téléchargement de l\'image :', err);
         return res.status(500).json({ message: "Erreur lors du téléchargement de l'image" });
       }
+
+      const { title, content, author, name, date } = req.body;
+
+      if (!title || !content || !author || !name) {
+        return res.status(400).json({ message: "Les champs title, content, author et name sont requis." });
+      }
+
+      const newArticle = new articleModel({
+        title,
+        content,
+        author,
+        name,
+        date,
+      });
 
       // Si une image est téléchargée, ajoutez le chemin vers l'image à l'article
       if (req.file) {
@@ -69,6 +76,7 @@ const getAllarticle = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération des articles" });
   }
 };
+
 
 const getOnearticle = async (req, res) => {
   try {
