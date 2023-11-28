@@ -2,11 +2,13 @@ const port = 3002;
 const express = require('express');
 const app = express();
 const connectToDatabase= require('../backend/database');
+// app.use(express.urlencoded({ extended:true}))
 
 connectToDatabase();
 
+
 const userRoute = require('./routes/user');
-const articleRoute = require('./routes/article');
+const articleRoute = require('../backend/routes/article');
 
 app.use(express.json());
 app.use(userRoute);
