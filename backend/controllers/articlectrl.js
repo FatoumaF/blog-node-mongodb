@@ -31,19 +31,47 @@ const getAllarticle = async(req,res) =>{
 
 }
 
-const getOnearticle = (req, res ) =>{
+const getOnearticle = async(req, res ) =>{
 try {
-    
+    const oneArticle = await articleModel.find();
+    res.json(oneArticle);  
 } catch (error) {
+    res.status(500).json({message : error})
     
 }
 
 }
 
-const updateOnearticle= (req, res) =>{
+const updateOnearticle= async(req, res) =>{
+    try {
+        console.log(req.body.id)
+        if(req.body.id && req.body.title && req.body.author && req.body.content){
+            const newArticle =  await articleModel.findOne({_id :req.body.id});
+            if (newArticle){
+                newArticle.title = req.body.title;
+                newArticle.author = req.body.author
+                newArticle.content = req.body.content
+                await newArticle.save()
+                res.send(newArticle)
+            }else{
+                res.status(404).json({message : "user not found"});
+            }
+            
+        }
+
+        
+    } catch (error) {
+        res.status(500).json({error : error.message});
+        
+    }
 
 }
 const deleteOnearticle= (req,res) =>{
+    try {
+        
+    } catch (error) {
+        
+    }
 
 }
 module.exports = {createOnearticle, getAllarticle ,updateOnearticle , deleteOnearticle,getOnearticle};
