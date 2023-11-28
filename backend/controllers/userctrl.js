@@ -1,15 +1,17 @@
 const userModel = require('../models/user.js');
 const bcrypt = require('bcrypt');
-const validate= require('../validation/validator.js')
+const jwt = require('jsonwebtoken');
+const userValidate= require('../validation/validator.js');
+const userValidation = require('../validation/validator.js');
 
 const createOne = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-    const { error } = validate(req.body); // Modification ici
+    const {error} = userValidate(req.body).userValidationRegister; // Modification ici
     if(error) return res.status(401).json(error.details[0].message)
 
-    if (password.length < 8) {
-      return res.status(400).json({ message: "Le mot de passe doit contenir au moins 8 caractères" });
+    if (password.length < 5) {
+      return res.status(400).json({ message: "Le mot de passe doit contenir au moins 5 caractères" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -33,24 +35,47 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    const { error } = userValidation(req.body);
+    if (error) return res.status(401).json({ message: error.details[0].message });
+
     if (!email || !password) {
       return res.status(400).json({ message: "Veuillez fournir des informations correctes" });
     }
 
-    const userExist = await userModel.findOne({ email: req.body.email });
+    const userExist = await userModel.findOne({ email });
 
     if (!userExist) {
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
-    // Votre logique de connexion ici
+    try {
+      const match = await bcrypt.compare(password, userExist.password);
 
-    return res.status(200).json({ message: "Connexion réussie" });
+      if (!match) {
+        console.error("Password comparison failed");
+        return res.status(401).json({ message: "Identifiants invalides" });
+      }
 
+      const token = await jwt.sign({ id: userExist._id }, "Secret_KEY", { expiresIn: "12h" });
+
+      return res.status(200).json({
+        email: userExist.email,
+        id: userExist._id,
+        token: token,
+        message: "Connexion réussie"
+      });
+    } catch (bcryptError) {
+      console.error("bcrypt error:", bcryptError);
+      return res.status(500).json({ message: "Erreur du serveur" });
+    }
   } catch (error) {
-    res.status(500).json({ error: error, message: "Erreur du serveur" });
+    console.error("General error:", error);
+    return res.status(500).json({ message: "Erreur du serveur" });
   }
 };
+
+
+
 
 const updateOne = async (req, res) => {
   try {
