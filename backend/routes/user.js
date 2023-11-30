@@ -1,6 +1,7 @@
 const user = require('../models/user.js')
 const express = require('express');
 const { createOne, getAll, login, updateOne } = require('../controllers/userctrl.js');
+const passport = require('passport');
 
 // import {createOne, getAll, login,updateOne} from '../backend/controllers/userctrl.'
 
@@ -17,5 +18,11 @@ router.put('/user:id', updateOne)
  router.post('/login', login)
  //Pour que l'utilisateur se connecte
  router.post('/register',createOne )
+
+router.use(passport.authenticate("jwt", {session : false}))
+ router.get('/', (req, res)=>{
+    res.send('Route protégé')
+
+ })
 
  module.exports = router;
