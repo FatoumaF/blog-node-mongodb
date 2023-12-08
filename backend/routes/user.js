@@ -19,7 +19,7 @@ router.put('/user:id', updateOne)
  //Pour que l'utilisateur se connecte
  router.post('/register',createOne )
 
-router.use(passport.authenticate("jwt", {session : false}))
+// router.use(passport.authenticate("jwt", {session : false}))
  router.get('/', (req, res)=>{
     res.send('Route protégé')
 

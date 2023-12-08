@@ -6,12 +6,15 @@ const connectToDatabase= require('../backend/database');
 connectToDatabase();
 const userRoute = require('./routes/user');
 const articleRoute = require('../backend/routes/article');
+const commentsRoute = require('../backend/routes/commentaires');
 require('../backend/midlewear.js/auth');
 
 
+app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 app.use(userRoute);
 app.use(articleRoute);
+app.use(commentsRoute);
 
 
 app.get('/', (req, res)=>{

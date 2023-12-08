@@ -10,21 +10,25 @@ const articleSchema = mongoose.Schema({
     required: true
   },
   author: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
- 
-  name : {
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment'
+  }],
+  name: {
     type: String,
-    required : true
+    required: true
   },
   date: {
     type: Date,
     default: Date.now
   },
-  image  : {
-    type : String,
-    required : false
+  image: {
+    type: String,
+    required: false
   }
 });
 
