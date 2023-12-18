@@ -29,7 +29,22 @@ const articleSchema = mongoose.Schema({
   image: {
     type: String,
     required: false
-  }
+  },
+  articleSchema.index :[{
+    title: {
+      type : String,
+      required : true
+    },
+    content: {
+    type: String,
+    required:true
+  } ,
+    tags: {
+      type:String,
+    },
+  required : true
+ }]
+
 });
 
 const article = mongoose.model('article', articleSchema);
